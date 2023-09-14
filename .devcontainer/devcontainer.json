@@ -1,0 +1,43 @@
+{
+  "name": "fastapi-trial",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "VARIANT": "3.11-bookworm",
+      "NODE_VERSION": "lts/*"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.languageServer": "Default",
+        "[python]": {
+          "editor.formatOnPaste": false,
+          "editor.formatOnSaveMode": "file",
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        }
+      },
+      "extensions": [
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "9000": {
+      "label": "Hello Remote World",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "pip3 install -r requirements-dev.txt",
+  "remoteUser": "vscode"
+}
