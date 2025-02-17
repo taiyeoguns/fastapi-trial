@@ -8,7 +8,7 @@ help: ## Show this help message
 
 .PHONY: install
 install: ## Install requirements in virtual environment
-	pip install -r requirements-dev.txt && pre-commit install;
+	pip install -r requirements-dev.txt && pre-commit install && pre-commit install -t pre-push;
 
 .PHONY: db-migrate
 db-migrate: ## Create migrations file for database

@@ -22,7 +22,9 @@ def dependency_overrides(application):
 @pytest.mark.usefixtures("dependency_overrides")
 @pytest.mark.asyncio
 async def test_get_users(client, test_session):
-    user_schema = UserSchema(name="testuser")
+    user_schema = UserSchema(
+        first_name="test", last_name="user", email="test.user@email.com"
+    )
     user = await create_user(test_session, user_schema)
 
     response = client.get(f"{V1_ENDPOINT}/users")
@@ -30,13 +32,15 @@ async def test_get_users(client, test_session):
     assert response.status_code == HTTPStatus.OK
     assert response.json()
     assert response.json()[0]["id"] == str(user.uuid)
-    assert response.json()[0]["name"] == user.name
+    assert response.json()[0]["last_name"] == user.last_name
 
 
 @pytest.mark.usefixtures("dependency_overrides")
 @pytest.mark.asyncio
 async def test_get_user(client, test_session):
-    user_schema = UserSchema(name="testuser")
+    user_schema = UserSchema(
+        first_name="test", last_name="user", email="test.user@email.com"
+    )
     user = await create_user(test_session, user_schema)
 
     response = client.get(f"{V1_ENDPOINT}/user/{user.uuid}")
@@ -44,13 +48,17 @@ async def test_get_user(client, test_session):
     assert response.status_code == HTTPStatus.OK
     assert response.json()
     assert response.json()["id"] == str(user.uuid)
-    assert response.json()["name"] == user.name
+    assert response.json()["first_name"] == user.first_name
 
 
 @pytest.mark.usefixtures("dependency_overrides")
 @pytest.mark.asyncio
 async def test_create_user(client, test_session):
-    payload = {"name": "testuser"}
+    payload = {
+        "first_name": "test",
+        "last_name": "user",
+        "email": "test.user@email.com",
+    }
 
     response = client.post(f"{V1_ENDPOINT}/users", json=payload)
 

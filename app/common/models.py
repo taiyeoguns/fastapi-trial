@@ -7,4 +7,6 @@ from app.common.database import BaseDbModel
 class User(BaseDbModel, kw_only=True):
     __tablename__ = "users"
 
-    name: Mapped[str] = mapped_column(String(150))
+    first_name: Mapped[str] = mapped_column(String(150))
+    last_name: Mapped[str] = mapped_column(String(150))
+    email: Mapped[str] = mapped_column(String(100))

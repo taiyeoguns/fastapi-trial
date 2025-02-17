@@ -3,7 +3,7 @@ from http import HTTPStatus
 
 from fastapi import HTTPException
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.common.models import User
 from app.common.schemas import UserSchema
@@ -45,6 +45,8 @@ async def create_user(session, user_payload: UserSchema):
 
     except SQLAlchemyError as e:
         logger.exception("%s", e)
+        if isinstance(e, IntegrityError):
+            raise ValueError("Email already exists")
         raise
 
     return user
