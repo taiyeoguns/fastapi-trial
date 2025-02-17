@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class UserSchema(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
+    email: str
 
 
 class UserResponseSchema(UserSchema):
