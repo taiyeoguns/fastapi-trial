@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Any
 
 from decouple import config
-from pydantic import BaseSettings, Field, PostgresDsn, validator
+from pydantic import Field, PostgresDsn, ValidationInfo, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASEDIR = Path.cwd()
 
@@ -51,38 +52,39 @@ dictConfig(
 
 
 class Config(BaseSettings):
-    VERSION: str = Field(default="v1", env="VERSION")
-    DEBUG: bool = Field(default=False, env="DEBUG")
+    VERSION: str = Field(default="v1")
+    DEBUG: bool = Field(default=False)
 
-    POSTGRES_USER: str = Field(default="", env="POSTGRES_USER")
-    POSTGRES_PASSWORD: str = Field(default="", env="POSTGRES_PASSWORD")
-    POSTGRES_HOST: str = Field(default="", env="POSTGRES_HOST")
-    POSTGRES_PORT: str = Field(default="", env="POSTGRES_PORT")
-    POSTGRES_DB: str = Field(default="", env="POSTGRES_DB")
-    DATABASE_URL: str | None
+    POSTGRES_USER: str = Field(default="postgres")
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str = Field(default="localhost")
+    POSTGRES_PORT: int = Field(default=5432)
+    POSTGRES_DB: str = Field(default="postgres")
+    DATABASE_URL: str = Field(default="")
 
-    @validator("DATABASE_URL", pre=True)
-    def build_db_connection(cls, v: str | None, values: dict[str, Any]) -> Any:
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def build_db_connection(cls, v: str | None, info: ValidationInfo) -> Any:
         if v:
             return v
 
         return str(
             PostgresDsn.build(
                 scheme="postgresql+asyncpg",
-                user=values.get("POSTGRES_USER"),
-                password=values.get("POSTGRES_PASSWORD"),
-                host=values.get("POSTGRES_HOST"),
-                port=str(values.get("POSTGRES_PORT")),
-                path=f"/{values.get('POSTGRES_DB') or ''}",
+                username=info.data.get("POSTGRES_USER"),
+                password=info.data.get("POSTGRES_PASSWORD"),
+                host=info.data.get("POSTGRES_HOST"),
+                port=info.data.get("POSTGRES_PORT"),
+                path=info.data.get("POSTGRES_DB"),
             )
         )
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 class TestingConfig(Config):
-    @validator("DATABASE_URL", pre=True)
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
     def build_db_connection(cls, v: str | None) -> Any:
         return "sqlite+aiosqlite://"
 
