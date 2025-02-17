@@ -5,7 +5,7 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 
 from app import create_app
-from app.common import models
+from app.common.database import Base
 from tests.utilities import ENGINE, SessionLocal
 
 
@@ -25,8 +25,8 @@ def fixture_application():
 
 async def create_tables():
     async with ENGINE.begin() as conn:
-        await conn.run_sync(models.SQLModel.metadata.drop_all)
-        await conn.run_sync(models.SQLModel.metadata.create_all)
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @pytest.fixture(name="client")

@@ -1,13 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlmodel import create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from config import TESTING_CONFIG
 
-ENGINE = AsyncEngine(create_engine(TESTING_CONFIG.DATABASE_URL, echo=True, future=True))
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, bind=ENGINE, class_=AsyncSession
-)
+ENGINE = create_async_engine(TESTING_CONFIG.DATABASE_URL)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 
 async def get_test_session():

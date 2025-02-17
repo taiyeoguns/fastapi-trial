@@ -5,7 +5,8 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.common.models import User, UserCreate
+from app.common.models import User
+from app.common.schemas import UserSchema
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +35,8 @@ async def get_user(session, user_id):
     return user
 
 
-async def create_user(session, user_payload: UserCreate):
-    user = User(**user_payload.dict())
+async def create_user(session, user_payload: UserSchema):
+    user = User(**user_payload.model_dump())
     session.add(user)
 
     try:
