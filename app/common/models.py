@@ -1,11 +1,14 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from pydantic import EmailStr
 from sqlmodel import Column, DateTime, Field, SQLModel
 
 
 class UserBase(SQLModel):
-    name: str
+    first_name: str
+    last_name: str
+    email: EmailStr = Field(unique=True)
 
 
 class User(UserBase, table=True):
