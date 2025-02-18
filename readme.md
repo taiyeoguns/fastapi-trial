@@ -1,11 +1,12 @@
 # Fastapi-Trial
 
-Fastapi Trial
+Fastapi application to show typical Create, Read, Update, Delete (CRUD) operations.
 
 ## Requirements
 
 - Python 3.11
 - Fastapi
+- Postgres database
 - Pytest
 - Docker
 
@@ -35,9 +36,9 @@ cp .env.example .env
 
 ### Set up database
 
-SQLAlchemy is used to model the data and alembic is used to keep the db up-to-date.
+SQLAlchemy is used to model the data and alembic is used to keep the database up-to-date with migrations.
 
-To setup a local db, fill in database details in `.env` file from earlier or set up environment variables. Ensure the database and user defined in `.env` is already created in Postgres.
+To setup a local database, fill in database details in `.env` file from earlier or set up environment variables. Ensure the database and user defined in `.env` is already created in Postgres.
 
 For initial database setup, run the following commands:
 
@@ -78,15 +79,7 @@ The following environment variables should be set in the `.env` file even if the
 With Docker and Docker Compose set up, run:
 
 ```sh
-make docker-up
-```
-
-Wait till setup is complete and all containers are started.
-
-In another terminal tab/window, run:
-
-```sh
-make docker-db-upgrade
+make docker-run
 ```
 
 Thereafter, application should be available at `http://localhost:8000`

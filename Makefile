@@ -33,3 +33,10 @@ docker-up: ## Bring up environment in Docker
 .PHONY: docker-db-upgrade
 docker-db-upgrade: ## Perform database upgrade when running in Docker
 	docker-compose exec fastapi_service alembic upgrade head;
+
+.PHONY: docker-up-detached
+docker-up-detached: ## Bring up environment in Docker detached mode
+	docker-compose up --build -d;
+
+.PHONY: docker-run ## Run application in Docker
+docker-run: docker-up-detached docker-db-upgrade
