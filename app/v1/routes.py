@@ -1,13 +1,10 @@
 import logging
 from http import HTTPStatus
-from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.common.database import get_session
-from app.common.dependencies import is_valid
+from app.common.dependencies import check_api_key, is_valid
 from app.common.schemas import UserSchema, UserResponseSchema
+from app.common.types import Session
 from app.v1.logic import create_user, get_all_users, get_user
 from dataclasses import asdict
 
@@ -15,15 +12,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-Session = Annotated[AsyncSession, Depends(get_session)]
-
 
 @router.get(
     "/users",
     summary="Users endpoint",
     description="Users endpoint description",
     responses={"200": {"model": list[UserResponseSchema]}},
-    dependencies=[Depends(is_valid)],
+    dependencies=[Depends(is_valid), Depends(check_api_key)],
 )
 async def get_all_users_handler(session: Session):
     logger.info("getting all users...")
