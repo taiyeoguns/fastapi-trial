@@ -4,6 +4,7 @@ from faker import Faker
 from faker.providers import misc
 
 from app.common.models import User
+from sqlalchemy.orm import Session
 
 fake = Faker()
 fake.add_provider(misc)
@@ -13,6 +14,15 @@ class DbModelFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         abstract = True
         sqlalchemy_session_persistence = SESSION_PERSISTENCE_COMMIT
+
+    @classmethod
+    def create_instances(cls, session: Session, size: int = 1, **kwargs):
+        cls._meta.sqlalchemy_session = session
+        return cls.create_batch(size=size, **kwargs)
+
+    @classmethod
+    def create_instance(cls, session: Session, **kwargs):
+        return cls.create_instances(session, size=1, **kwargs)[0]
 
 
 class UserFactory(DbModelFactory):

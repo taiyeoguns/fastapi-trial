@@ -1,12 +1,12 @@
-import asyncio
-
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app import create_app
 from app.common.database import Base
-from tests.utilities import ENGINE, SessionLocal
+from app.common.factories import UserFactory
+from config import TESTING_CONFIG
 
 
 @pytest.fixture(name="application")
@@ -16,33 +16,69 @@ def fixture_application():
     Returns:
         application -- Application context
     """
-    app = create_app()
-
-    asyncio.run(create_tables())
-
-    yield app
+    yield create_app()
 
 
-async def create_tables():
-    async with ENGINE.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+@pytest.fixture(name="test_engine")
+def fixture_test_engine():
+    yield create_async_engine(TESTING_CONFIG.DATABASE_URL)
 
 
-@pytest.fixture(name="client")
-def fixture_client(application):
-    """Fixture for HTTP test client
+@pytest_asyncio.fixture(name="create_tables")
+async def fixture_create_tables(test_engine):
+    async def inner():
+        async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
+
+    return inner
+
+
+@pytest_asyncio.fixture(name="test_user")
+async def fixture_test_user(test_session):
+    yield await test_session.run_sync(
+        UserFactory.create_instance,
+        first_name="Test",
+        last_name="User",
+        api_key="00000000-0000-0000-0000-000000000000",
+    )
+
+
+@pytest_asyncio.fixture(name="client")
+async def fixture_client(application):
+    """Fixture for HTTP test client using httpx.AsyncClient
 
     Arguments:
         application -- Application context
 
     Returns:
-        client -- HTTP client
+        client -- HTTP async client
     """
-    return TestClient(application)
+    async with AsyncClient(
+        transport=ASGITransport(app=application), base_url="http://test"
+    ) as client:
+        yield client
+
+
+@pytest_asyncio.fixture(name="auth_client")
+async def fixture_auth_client(client, test_user):
+    client.headers.update({"X-Api-Key": str(test_user.api_key)})
+    yield client
 
 
 @pytest_asyncio.fixture(name="test_session")
-async def fixture_test_session():
+async def fixture_test_session(test_engine, create_tables):
+    SessionLocal = async_sessionmaker(
+        autocommit=False, autoflush=False, expire_on_commit=False, bind=test_engine
+    )
     async with SessionLocal() as session:
+        await create_tables()
         yield session
+
+
+@pytest_asyncio.fixture(name="get_test_session")
+async def fixture_get_test_session(test_session):
+    async def inner():
+        return test_session
+
+    return inner
