@@ -53,6 +53,14 @@ make db-migrate
 make db-upgrade
 ```
 
+### Seeding the database
+
+To seed the database with initial data, run:
+
+```sh
+make seed
+```
+
 ### Run the application
 
 Activate the virtual environment and start the application by running:
@@ -60,6 +68,10 @@ Activate the virtual environment and start the application by running:
 ```sh
 make run
 ```
+
+### Authenticating API requests
+
+To authenticate API requests, pass a valid API key as a header with key `X-Api-Key`.
 
 ### Tests
 
