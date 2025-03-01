@@ -18,6 +18,10 @@ db-migrate: ## Create migrations file for database
 db-upgrade: ## Perform upgrade to database
 	alembic upgrade head;
 
+.PHONY: seed
+seed: ## Seed database with initial data
+	python seed.py;
+
 .PHONY: run
 run: ## Start the local web server
 	python run.py;
