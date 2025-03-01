@@ -10,7 +10,7 @@ from dataclasses import asdict
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(check_api_key)])
 
 
 @router.get(
@@ -18,7 +18,7 @@ router = APIRouter()
     summary="Users endpoint",
     description="Users endpoint description",
     responses={"200": {"model": list[UserResponseSchema]}},
-    dependencies=[Depends(is_valid), Depends(check_api_key)],
+    dependencies=[Depends(is_valid)],
 )
 async def get_all_users_handler(session: Session):
     logger.info("getting all users...")

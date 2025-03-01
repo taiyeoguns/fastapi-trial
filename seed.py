@@ -2,18 +2,17 @@ import asyncio
 from uuid import uuid4
 
 from decouple import config
-from sqlalchemy import select
 
+from app.common.authentication import get_user_by_api_key
 from app.common.database import SessionLocal
 from app.common.factories import UserFactory
-from app.common.models import User
 
 
 async def seed_users():
-    query = select(User).where(User.api_key == config("ADMIN_TOKEN"))
     async with SessionLocal() as session:
-        user_result = await session.execute(query)
-        existing_admin_user = user_result.scalar_one_or_none()
+        existing_admin_user = await get_user_by_api_key(
+            session, config("ADMIN_TOKEN"), raise_exception=False
+        )
         if not existing_admin_user:
             await session.run_sync(
                 UserFactory.create_instance,

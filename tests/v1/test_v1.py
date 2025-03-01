@@ -38,8 +38,8 @@ async def test_get_users(auth_client, test_user):
 
 @pytest.mark.usefixtures("dependency_overrides")
 @pytest.mark.asyncio
-async def test_get_user(client, test_user):
-    response = await client.get(f"{V1_ENDPOINT}/user/{test_user.uuid}")
+async def test_get_user(auth_client, test_user):
+    response = await auth_client.get(f"{V1_ENDPOINT}/user/{test_user.uuid}")
 
     assert response.status_code == HTTPStatus.OK
     assert response.json()
@@ -49,17 +49,17 @@ async def test_get_user(client, test_user):
 
 @pytest.mark.usefixtures("dependency_overrides")
 @pytest.mark.asyncio
-async def test_create_user(client, test_session):
+async def test_create_user(auth_client, test_session):
     payload = {
-        "first_name": "test",
+        "first_name": "sample",
         "last_name": "user",
-        "email": "test.user@email.com",
+        "email": "sample.user@email.com",
     }
 
-    response = await client.post(f"{V1_ENDPOINT}/users", json=payload)
+    response = await auth_client.post(f"{V1_ENDPOINT}/users", json=payload)
 
     users = await get_all_users(test_session)
 
     assert response.status_code == HTTPStatus.CREATED
     assert response.json()
-    assert len(users) == 1
+    assert len(users) == 2
