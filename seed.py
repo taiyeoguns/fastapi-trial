@@ -18,7 +18,7 @@ async def seed_users():
                 UserFactory.create_instance,
                 first_name="Admin",
                 last_name="User",
-                api_key=config("ADMIN_TOKEN", uuid4().hex),
+                api_key=config("ADMIN_TOKEN", str(uuid4())),
             )
         await session.run_sync(UserFactory.create_instances, 10)
 
