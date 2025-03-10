@@ -2,8 +2,11 @@ import logging
 from http import HTTPStatus
 
 from fastapi import HTTPException
+from fastapi_pagination import Params, set_params
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.common.models import User
 from app.common.schemas import UserSchema
@@ -11,12 +14,13 @@ from app.common.schemas import UserSchema
 logger = logging.getLogger(__name__)
 
 
-async def get_all_users(session):
-    user_results = await session.execute(select(User))
-    return user_results.scalars().all()
+async def get_all_users(session: AsyncSession, page: int = 1, per_page: int = 10):
+    set_params(Params(page=page, size=per_page))
+    query = select(User)
+    return await paginate(session, query)
 
 
-async def get_user(session, user_id):
+async def get_user(session: AsyncSession, user_id: str) -> User:
     query = select(User).where(User.uuid == user_id)
 
     try:
@@ -35,7 +39,7 @@ async def get_user(session, user_id):
     return user
 
 
-async def create_user(session, user_payload: UserSchema):
+async def create_user(session: AsyncSession, user_payload: UserSchema):
     user = User(**user_payload.model_dump())
     session.add(user)
 
