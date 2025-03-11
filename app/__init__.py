@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import RedirectResponse
+from fastapi_pagination import add_pagination
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.common.exception_handlers import (
@@ -39,6 +40,9 @@ def create_app():
     app.add_exception_handler(ValueError, validation_exception_handler)
     app.add_exception_handler(StarletteHTTPException, custom_http_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)
+
+    # add pagination
+    add_pagination(app)
 
     return app
 

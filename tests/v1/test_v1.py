@@ -5,6 +5,7 @@ import pytest
 
 from app.common.database import get_session
 from app.common.dependencies import is_valid
+from app.common.factories import UserFactory
 from app.v1.logic import get_all_users
 
 V1_ENDPOINT = "/v1"
@@ -41,8 +42,8 @@ async def test_get_users(auth_client, test_user):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json()
-    assert response.json()[0]["id"] == str(test_user.uuid)
-    assert response.json()[0]["last_name"] == test_user.last_name
+    assert response.json()["items"][0]["id"] == str(test_user.uuid)
+    assert response.json()["items"][0]["last_name"] == test_user.last_name
 
 
 @pytest.mark.usefixtures("dependency_overrides")
@@ -75,8 +76,42 @@ async def test_create_user(auth_client, test_session):
 
     response = await auth_client.post(f"{V1_ENDPOINT}/users", json=payload)
 
-    users = await get_all_users(test_session)
+    paged_users = await get_all_users(test_session)
 
     assert response.status_code == HTTPStatus.CREATED
     assert response.json()
-    assert len(users) == 2
+    assert len(paged_users.items) == 2
+
+
+@pytest.mark.usefixtures("dependency_overrides")
+@pytest.mark.asyncio
+async def test_get_users_pagination(auth_client, test_session):
+    # Create multiple users for pagination
+    await test_session.run_sync(UserFactory.create_instances, 15)
+
+    response = await auth_client.get(f"{V1_ENDPOINT}/users?page=1&per_page=10")
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()
+    assert len(response.json()["items"]) == 10
+
+    response = await auth_client.get(f"{V1_ENDPOINT}/users?page=2&per_page=10")
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()
+    assert len(response.json()["items"]) == 6
+
+
+@pytest.mark.usefixtures("dependency_overrides")
+@pytest.mark.asyncio
+async def test_get_users_default_pagination(auth_client, test_session):
+    await test_session.run_sync(UserFactory.create_instances, 15)
+
+    # Test default pagination parameters by not providing page or per_page
+    response = await auth_client.get(f"{V1_ENDPOINT}/users")
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()
+    # Assuming default pagination uses page=1 & per_page=10
+    assert len(response.json()["items"]) == 10
+    assert response.json()["page"] == 1
+    assert response.json()["size"] == 10
+    assert response.json()["total"] == 16
+    assert response.json()["pages"] == 2
