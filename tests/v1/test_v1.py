@@ -98,3 +98,20 @@ async def test_get_users_pagination(auth_client, test_session):
     assert response.status_code == HTTPStatus.OK
     assert response.json()
     assert len(response.json()["items"]) == 6
+
+
+@pytest.mark.usefixtures("dependency_overrides")
+@pytest.mark.asyncio
+async def test_get_users_default_pagination(auth_client, test_session):
+    await test_session.run_sync(UserFactory.create_instances, 15)
+
+    # Test default pagination parameters by not providing page or per_page
+    response = await auth_client.get(f"{V1_ENDPOINT}/users")
+    assert response.status_code == HTTPStatus.OK
+    assert response.json()
+    # Assuming default pagination uses page=1 & per_page=10
+    assert len(response.json()["items"]) == 10
+    assert response.json()["page"] == 1
+    assert response.json()["size"] == 10
+    assert response.json()["total"] == 16
+    assert response.json()["pages"] == 2
