@@ -15,5 +15,10 @@ class User(BaseDbModel, kw_only=True):
     last_name: Mapped[str] = mapped_column(String(150))
     email: Mapped[str] = mapped_column(String(100))
     api_key: Mapped[UUID] = mapped_column(
-        UUIDType(), unique=True, index=True, nullable=False, default_factory=uuid4
+        UUIDType(),
+        unique=True,
+        index=True,
+        nullable=False,
+        default_factory=uuid4,
+        repr=False,
     )

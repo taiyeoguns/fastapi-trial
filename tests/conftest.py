@@ -3,7 +3,7 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from app import create_app
+from app.main import create_app
 from app.common.database import Base
 from app.common.factories import UserFactory
 from config import TESTING_CONFIG
