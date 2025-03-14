@@ -1,6 +1,6 @@
 # Fastapi Trial Application
 
-Fastapi application to show typical Create, Read, Update, Delete (CRUD) operations. Features include async database, migrations, documentation, automated unit tests, CI/CD with Github Actions, authentication and pagination.
+Fastapi application to show typical Create, Read, Update, Delete (CRUD) operations. Features include async database, migrations, documentation, automated unit tests, CI/CD with GitHub Actions, authentication and pagination.
 
 ## Requirements
 
