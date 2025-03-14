@@ -1,6 +1,6 @@
-# Fastapi-Trial
+# Fastapi Trial Application
 
-Fastapi application to show typical Create, Read, Update, Delete (CRUD) operations.
+Fastapi application to show typical Create, Read, Update, Delete (CRUD) operations. Features include async database, migrations, documentation, automated unit tests, CI/CD with Github Actions, authentication and pagination.
 
 ## Requirements
 
@@ -95,3 +95,5 @@ make docker-run
 ```
 
 Thereafter, application should be available at `http://localhost:8000`
+
+OpenAPI documentation should be available at `http://localhost:8000/docs`
